@@ -4,15 +4,21 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Course;
+use App\Http\Traits\ApiResponses;
 
 class CourseController extends Controller
 {
+    use ApiResponses;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $courses = Course::all();
+
+        return $this->successResponse($courses);
     }
 
     /**
@@ -20,7 +26,16 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $course = Course::create($request->all());
+
+        return $this->createdResponse($course);
     }
 
     /**
@@ -28,7 +43,13 @@ class CourseController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $course = Course::find($id);
+
+        if (!$course) {
+            return $this->notFoundResponse('Course not found.');
+        }
+
+        return $this->successResponse($course);
     }
 
     /**
@@ -36,7 +57,22 @@ class CourseController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $course = Course::find($id);
+
+        if (!$course) {
+            return $this->notFoundResponse('Course not found.');
+        }
+
+        $request->validate([
+            'title' => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|nullable|string',
+            'start_date' => 'sometimes|required|date',
+            'end_date' => 'sometimes|required|date|after_or_equal:start_date',
+        ]);
+
+        $course->update($request->all());
+
+        return $this->successResponse($course);
     }
 
     /**
@@ -44,6 +80,14 @@ class CourseController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $course = Course::find($id);
+
+        if (!$course) {
+            return $this->notFoundResponse('Course not found.');
+        }
+
+        $course->delete();
+
+        return $this->successResponse(null, 'Course deleted successfully.');
     }
 }
