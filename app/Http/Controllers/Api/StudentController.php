@@ -3,16 +3,22 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Student;
 use Illuminate\Http\Request;
+use App\Http\Traits\ApiResponses;
 
 class StudentController extends Controller
 {
+    use ApiResponses;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $students = Student::all();
+
+        return $this->successResponse($students, 'Students retrieved successfully');
     }
 
     /**
@@ -20,7 +26,21 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required',
+            'birthdate' => 'required',
+            'nationality' => 'required',
+        ]);
+
+        $student = Student::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'birthdate' => $request->birthdate,
+            'nationality' => $request->nationality,
+        ]);
+
+        return $this->createdResponse($student, 'Student created successfully');
     }
 
     /**
@@ -28,7 +48,13 @@ class StudentController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $student = Student::find($id);
+
+        if (!$student) {
+            return $this->notFoundResponse('Student not found');
+        }
+
+        return $this->successResponse($student, 'Student retrieved successfully');
     }
 
     /**
@@ -36,7 +62,22 @@ class StudentController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $student = Student::find($id);
+
+        if (!$student) {
+            return $this->notFoundResponse('Student not found');
+        }
+
+        $request->validate([
+            'name' => 'sometimes|required',
+            'email' => 'sometimes|required',
+            'birthdate' => 'sometimes|required',
+            'nationality' => 'sometimes|required',
+        ]);
+
+        $student->update($request->only(['name', 'email', 'birthdate', 'nationality']));
+
+        return $this->successResponse($student, 'Student updated successfully');
     }
 
     /**
@@ -44,6 +85,14 @@ class StudentController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $student = Student::find($id);
+
+        if (!$student) {
+            return $this->notFoundResponse('Student not found');
+        }
+
+        $student->delete();
+
+        return $this->successResponse(null, 'Student deleted successfully');
     }
 }
