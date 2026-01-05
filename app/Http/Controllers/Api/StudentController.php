@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Http\Traits\ApiResponses;
+use App\Http\Requests\StoreStudentRequest;
+use App\Http\Requests\UpdateStudentRequest;
 
 class StudentController extends Controller
 {
@@ -24,15 +26,8 @@ class StudentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreStudentRequest $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'birthdate' => 'required',
-            'nationality' => 'required',
-        ]);
-
         $student = Student::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -60,20 +55,13 @@ class StudentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateStudentRequest $request, string $id)
     {
         $student = Student::find($id);
 
         if (!$student) {
             return $this->notFoundResponse('Student not found');
         }
-
-        $request->validate([
-            'name' => 'sometimes|required',
-            'email' => 'sometimes|required',
-            'birthdate' => 'sometimes|required',
-            'nationality' => 'sometimes|required',
-        ]);
 
         $student->update($request->only(['name', 'email', 'birthdate', 'nationality']));
 
