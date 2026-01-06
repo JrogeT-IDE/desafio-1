@@ -18,7 +18,26 @@ class StudentController extends Controller
      */
     public function index()
     {
-        $students = Student::all();
+        $nameFilter = request()->query('name');
+        $emailFilter = request()->query('email');
+        $pagination = request()->query('pagination', 5);
+        $nameOrder = request()->query('name_order', 'asc');
+        $emailOrder = request()->query('email_order', 'asc');
+
+        $query = Student::query();
+
+        if ($nameFilter) {
+            $query->where('name', 'like', '%' . $nameFilter . '%');
+        }
+
+        if ($emailFilter) {
+            $query->where('email', 'like', '%' . $emailFilter . '%');
+        }
+
+        $query->orderBy('name', $nameOrder)
+              ->orderBy('email', $emailOrder);
+
+        $students = $query->paginate($pagination);
 
         return $this->successResponse($students, 'Students retrieved successfully');
     }
