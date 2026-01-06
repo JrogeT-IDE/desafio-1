@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Http\Traits\ApiResponses;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
